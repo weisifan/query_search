@@ -22,7 +22,7 @@ jobs:
 
     - name: Install usearch native library
       run: |
-        wget https://github.com/unum-cloud/usearch/releases/usearch_linux_amd64_2.17.7.deb
+        wget https://github.com/unum-cloud/usearch/releases/download/usearch_linux_amd64_2.17.7.deb
 
         sudo dpkg -i usearch_linux_amd64_2.17.7.deb
 
