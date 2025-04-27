@@ -39,9 +39,7 @@ func GetEmbedding(apiKey, input string) ([]float32, error) {
     }
     defer resp.Body.Close()
 
-    // Debug print
     bodyBytes, _ := io.ReadAll(resp.Body)
-    // fmt.Println("Raw OpenAI response:", string(bodyBytes))
 
     var result struct {
         Data []struct {

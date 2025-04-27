@@ -29,4 +29,10 @@ jobs:
     - name: Build the binary
       run: |
         go mod tidy
-        make build
+        make build\
+
+    - name: Upload built binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: query_search_binary
+        path: query_search

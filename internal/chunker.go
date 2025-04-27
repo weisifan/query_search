@@ -1,35 +1,3 @@
-// package internal
-
-// import (
-// 	"fmt"
-// 	"os"
-// )
-
-// func ChunkText(filePath string) ([]string, error) {
-// 	data, err := os.ReadFile(filePath)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	text := string(data)
-// 	var chunks []string
-// 	chunkSize := 200 // you can tune this later
-
-// 	for i := 0; i < len(text); i += chunkSize {
-// 		end := i + chunkSize
-// 		if end > len(text) {
-// 			end = len(text)
-// 		}
-// 		chunks = append(chunks, text[i:end])
-// 	}
-// 	fmt.Println("Number of chunks:", len(chunks))
-// 	for i, chunk := range chunks {
-// 		fmt.Printf("Chunk %d length: %d\n", i, len(chunk))
-// 	}
-// 	return chunks, nil
-// }
-
-
 package internal
 
 import (
