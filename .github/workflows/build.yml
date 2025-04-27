@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -17,15 +18,14 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.22'  # your Go version
+        go-version: '1.22'
+
+    - name: Install usearch native library
+      run: |
+        wget https://github.com/unum-cloud/usearch/releases/latest/download/usearch-ubuntu22-x86_64.deb
+        sudo dpkg -i usearch-ubuntu22-x86_64.deb
 
     - name: Build the binary
       run: |
         go mod tidy
         make build
-
-    - name: Upload built binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: query_search_binary
-        path: query_search
