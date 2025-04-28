@@ -1,4 +1,4 @@
-name: Build Static Query Search
+name: Build Static Query Search (with local usearch bindings)
 
 on:
   push:
@@ -17,11 +17,16 @@ jobs:
     - name: Install build tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake gcc g++ make
+        sudo apt-get install -y cmake gcc g++ make wget
 
-    - name: Clone usearch with submodules
+    - name: Clone usearch C++ source
       run: |
         git clone --recurse-submodules https://github.com/unum-cloud/usearch.git
+
+    - name: Clone usearch golang bindings
+      run: |
+        mkdir -p usearch/bindings
+        git clone https://github.com/unum-cloud/usearch-golang.git usearch/bindings/golang
 
     - name: Build static libusearch_c.a
       run: |
