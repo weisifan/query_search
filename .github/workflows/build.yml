@@ -26,7 +26,6 @@ jobs:
         cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
         cmake --build build
 
-
     - name: Build query_search binary
       env:
         CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
@@ -40,4 +39,3 @@ jobs:
       with:
         name: query_search_binary
         path: query_search
-
