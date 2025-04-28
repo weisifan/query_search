@@ -22,6 +22,9 @@ jobs:
     - name: Clone usearch with submodules
       run: |
         git clone --recurse-submodules https://github.com/unum-cloud/usearch.git
+
+    - name: Build static libusearch_c.a
+      run: |
         cd usearch
         cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
         cmake --build build
