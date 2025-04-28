@@ -1,4 +1,4 @@
-name: Build Static Query Search (with online golang binding)
+name: Build and Bundle Query Search
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     - name: Install build tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y wget dpkg-dev gcc g++ make cmake
+        sudo apt-get install -y wget dpkg-dev gcc g++ make cmake zip
 
     - name: Download and Extract usearch deb package
       run: |
@@ -44,8 +44,16 @@ jobs:
       run: |
         go build -o query_search ./cmd/main.go
 
-    - name: Upload artifact
+    - name: Bundle query_search and libusearch_c.so into ZIP
+      run: |
+        mkdir bundle
+        cp query_search bundle/
+        cp extracted/usr/local/lib/libusearch_c.so bundle/
+        cd bundle
+        zip ../query_search_linux.zip query_search libusearch_c.so
+
+    - name: Upload bundled zip artifact
       uses: actions/upload-artifact@v4
       with:
-        name: query_search_binary
-        path: query_search
+        name: query_search_linux
+        path: query_search_linux.zip
