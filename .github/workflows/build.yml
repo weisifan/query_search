@@ -1,4 +1,4 @@
-name: Build Static Query Search (using extracted usearch .so)
+name: Build Static Query Search (with online golang binding)
 
 on:
   push:
@@ -29,10 +29,6 @@ jobs:
       run: |
         mkdir -p usearch/golang
         cp extracted/usr/local/include/usearch.h usearch/golang/
-
-    - name: Add replace directive for local usearch golang binding
-      run: |
-        go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/golang
 
     - name: Tidy go.mod
       env:
