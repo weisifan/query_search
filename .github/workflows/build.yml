@@ -1,4 +1,4 @@
-name: Build Static Query Search (fix header visibility)
+name: Build Static Query Search (Full Fix)
 
 on:
   push:
@@ -29,6 +29,11 @@ jobs:
         cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
         cmake --build build
 
+    - name: Install usearch headers and libs
+      run: |
+        cd usearch
+        cmake --install build --prefix install
+
     - name: Add replace directive for local usearch golang binding
       run: |
         go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/golang
@@ -36,20 +41,19 @@ jobs:
     - name: Prepare headers
       run: |
         mkdir -p usearch/golang
-        if [ -f usearch/build/usearch.h ]; then cp usearch/build/usearch.h usearch/golang/; else cp usearch/include/usearch_c.h usearch/golang/usearch.h; fi
-
+        cp usearch/install/include/usearch.h usearch/golang/
 
     - name: Tidy go.mod
       env:
-        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
-        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
+        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/install/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/install/lib -l:libusearch_c.a -static"
       run: |
         go mod tidy
 
     - name: Build query_search binary
       env:
-        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
-        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
+        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/install/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/install/lib -l:libusearch_c.a -static"
       run: |
         go build -o query_search ./cmd/main.go
 
