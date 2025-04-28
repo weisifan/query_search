@@ -44,13 +44,17 @@ jobs:
       run: |
         go build -o query_search ./cmd/main.go
 
-    - name: Bundle query_search and libusearch_c.so into ZIP
+    - name: Bundle query_search, libusearch_c.so, and run.sh
       run: |
         mkdir bundle
         cp query_search bundle/
         cp extracted/usr/local/lib/libusearch_c.so bundle/
+        echo '#!/bin/bash' > bundle/run.sh
+        echo 'export LD_LIBRARY_PATH=$(dirname "$0")' >> bundle/run.sh
+        echo 'exec "$(dirname "$0")/query_search" "$@"' >> bundle/run.sh
+        chmod +x bundle/run.sh
         cd bundle
-        zip ../query_search_linux.zip query_search libusearch_c.so
+        zip ../query_search_linux.zip query_search libusearch_c.so run.sh
 
     - name: Upload bundled zip artifact
       uses: actions/upload-artifact@v4
