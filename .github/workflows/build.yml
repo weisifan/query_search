@@ -1,25 +1,48 @@
-- name: Checkout project code
-  uses: actions/checkout@v4
+name: Build Static Query Search
 
-- name: Install build tools
-  run: |
-    sudo apt-get update
-    sudo apt-get install -y cmake gcc g++ make
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-- name: Clone usearch with submodules
-  run: |
-    git clone --recurse-submodules https://github.com/unum-cloud/usearch.git
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-- name: Build static libusearch_c.a
-  run: |
-    cd usearch
-    cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
-    cmake --build build
+    steps:
+    - name: Checkout project code
+      uses: actions/checkout@v4
 
-- name: Build query_search binary
-  env:
-    CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
-    CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
-  run: |
-    go mod tidy
-    go build -o query_search ./cmd/main.go
+    - name: Install build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake gcc g++ make
+
+    - name: Clone usearch with submodules
+      run: |
+        git clone --recurse-submodules https://github.com/unum-cloud/usearch.git
+
+    - name: Add replace directive for local usearch golang binding
+      run: |
+        echo 'replace github.com/unum-cloud/usearch/golang => ./usearch/bindings/golang' >> go.mod
+
+    - name: Build static libusearch_c.a
+      run: |
+        cd usearch
+        cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
+        cmake --build build
+
+    - name: Build query_search binary
+      env:
+        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
+      run: |
+        go mod tidy
+        go build -o query_search ./cmd/main.go
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: query_search_binary
+        path: query_search
