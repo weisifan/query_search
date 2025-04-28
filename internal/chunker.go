@@ -20,6 +20,7 @@ func isAbbreviation(word string) bool {
 	return false
 }
 
+// ChunkText reads a file, splits text into sentences, and groups sentences into reasonable sized chunks.
 func ChunkText(filePath string) ([]string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -49,10 +50,10 @@ func ChunkText(filePath string) ([]string, error) {
 		sentences = append(sentences, strings.TrimSpace(currentSentence.String()))
 	}
 
-	// Now pack sentences into chunks
+	// Now group sentences into larger chunks
 	var chunks []string
 	var currentChunk strings.Builder
-	maxChunkSize := 200
+	maxChunkSize := 800  // <--- Bump this up to 800 characters for real use
 
 	for _, sentence := range sentences {
 		if currentChunk.Len()+len(sentence) < maxChunkSize {
@@ -71,4 +72,3 @@ func ChunkText(filePath string) ([]string, error) {
 	fmt.Println("Total chunks:", len(chunks))
 	return chunks, nil
 }
-

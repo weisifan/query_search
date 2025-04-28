@@ -39,7 +39,9 @@ You need the shared library libusearch_c.so.
 Option A: Download prebuilt USearch .deb package and extract manually:
 
 wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
+
 ar x usearch_linux_amd64_2.17.7.deb
+
 tar --use-compress-program=unzstd -xf data.tar.zst
 
 You will find:
@@ -136,7 +138,7 @@ Clone project:
 git clone https://github.com/weisifan/query_search.git
 
 Build binary:
-go build -o query_search
+go build -o query_search ./cmd
 
 Set library path:
 export LD_LIBRARY_PATH=$(pwd)/usr/local/lib:$LD_LIBRARY_PATH

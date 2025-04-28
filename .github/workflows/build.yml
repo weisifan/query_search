@@ -1,4 +1,4 @@
-name: Build Go App
+name: Build Static Query Search
 
 on:
   push:
@@ -8,31 +8,35 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout project code
       uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.22'
-
-    - name: Install usearch native library
+    - name: Install build tools
       run: |
-        wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
+        sudo apt-get update
+        sudo apt-get install -y cmake gcc g++ make
 
-        sudo dpkg -i usearch_linux_amd64_2.17.7.deb
+    - name: Clone usearch
+      run: |
+        git clone https://github.com/unum-cloud/usearch.git
+        cd usearch
+        cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
+        cmake --build build
 
-    - name: Build the binary
+    - name: Build query_search binary
+      env:
+        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
       run: |
         go mod tidy
-        make build\
+        go build -o query_search ./cmd/main.go
 
-    - name: Upload built binary
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: query_search_binary
         path: query_search
+
