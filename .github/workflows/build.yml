@@ -23,15 +23,15 @@ jobs:
       run: |
         git clone --recurse-submodules https://github.com/unum-cloud/usearch.git
 
-    - name: Add replace directive for local usearch golang binding
-      run: |
-        go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/bindings/golang
-
     - name: Build static libusearch_c.a
       run: |
         cd usearch
         cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
         cmake --build build
+
+    - name: Add replace directive for local usearch golang binding
+      run: |
+        go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/bindings/golang
 
     - name: Build query_search binary
       env:
