@@ -35,7 +35,9 @@ jobs:
 
     - name: Prepare headers
       run: |
-        cp usearch/include/usearch.h usearch/golang/
+        mkdir -p usearch/golang
+        if [ -f usearch/build/usearch.h ]; then cp usearch/build/usearch.h usearch/golang/; else cp usearch/include/usearch_c.h usearch/golang/usearch.h; fi
+
 
     - name: Tidy go.mod
       env:
