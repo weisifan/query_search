@@ -20,7 +20,7 @@ func isAbbreviation(word string) bool {
 	return false
 }
 
-// ChunkText reads a file, splits text into sentences, and groups sentences into reasonable sized chunks.
+// ChunkText reads a file, splits text into sentences, and groups sentences into meaningful chunks.
 func ChunkText(filePath string) ([]string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -33,10 +33,9 @@ func ChunkText(filePath string) ([]string, error) {
 	var sentences []string
 	var currentSentence strings.Builder
 
+	// Step 1: Split into sentences
 	for _, word := range words {
 		currentSentence.WriteString(word + " ")
-
-		// Check if the word ends a sentence
 		if strings.HasSuffix(word, ".") || strings.HasSuffix(word, "!") || strings.HasSuffix(word, "?") {
 			if !isAbbreviation(word) {
 				sentences = append(sentences, strings.TrimSpace(currentSentence.String()))
@@ -44,31 +43,40 @@ func ChunkText(filePath string) ([]string, error) {
 			}
 		}
 	}
-
-	// Add any leftover sentence
 	if currentSentence.Len() > 0 {
 		sentences = append(sentences, strings.TrimSpace(currentSentence.String()))
 	}
 
-	// Now group sentences into larger chunks
+	// Step 2: Group sentences into chunks
 	var chunks []string
-	var currentChunk strings.Builder
-	maxChunkSize := 800  // <--- Bump this up to 800 characters for real use
+	maxSentencesPerChunk := 5
+	maxCharactersPerChunk := 500
 
-	for _, sentence := range sentences {
-		if currentChunk.Len()+len(sentence) < maxChunkSize {
-			currentChunk.WriteString(sentence + " ")
-		} else {
-			chunks = append(chunks, strings.TrimSpace(currentChunk.String()))
-			currentChunk.Reset()
-			currentChunk.WriteString(sentence + " ")
+	currentChunkSentences := []string{}
+	currentChunkSize := 0
+
+	for i, sentence := range sentences {
+		sentenceLength := len(sentence)
+		currentChunkSentences = append(currentChunkSentences, sentence)
+		currentChunkSize += sentenceLength
+
+		// Conditions to close current chunk:
+		if len(currentChunkSentences) >= maxSentencesPerChunk || currentChunkSize >= maxCharactersPerChunk || i == len(sentences)-1 {
+			chunk := strings.Join(currentChunkSentences, " ")
+			chunks = append(chunks, chunk)
+			currentChunkSentences = []string{}
+			currentChunkSize = 0
 		}
 	}
 
-	if currentChunk.Len() > 0 {
-		chunks = append(chunks, strings.TrimSpace(currentChunk.String()))
+	// Print all chunks clearly
+	fmt.Println("========== Chunks ==========")
+	for idx, chunk := range chunks {
+		fmt.Printf("\n--- Chunk %d ---\n", idx+1)
+		fmt.Println(chunk)
 	}
+	fmt.Printf("\nTotal chunks: %d\n", len(chunks))
+	fmt.Println("=============================")
 
-	fmt.Println("Total chunks:", len(chunks))
 	return chunks, nil
 }

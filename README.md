@@ -1,147 +1,144 @@
-QUERY SEARCH
+# QUERY_SEARCH
 
-A command-line application that leverages USearch (https://github.com/unum-cloud/usearch) for efficient vector similarity search based on user queries. It also leverages the OpenAI Embedding API to generate vector representations of input texts.
+A lightweight command-line application that leverages [USearch](https://github.com/unum-cloud/usearch) for efficient vector similarity search based on user queries.  
+It also uses the **OpenAI Embedding API** to generate vector representations of input texts.
 
-This project demonstrates:
-- Embedding input data
-- Indexing vectors
-- Performing fast nearest-neighbor searches
+## Features
 
-------------------------------------------------------------
+- Embedding input text data
+- Indexing vectors for fast retrieval
+- Performing nearest-neighbor similarity searches
 
-INSTALLATION
+## Installation
 
-You can either build query_search from source manually or download a prebuilt artifact from GitHub Actions.
+You can either **build `query_search` from source** manually or **download a prebuilt artifact** from GitHub Actions.
 
-------------------------------------------------------------
+## Building from Source
 
-BUILDING FROM SOURCE
+1. **Clone the repository:**
 
-1. Clone the repository:
+    ```bash
+    git clone https://github.com/weisifan/query_search.git
+    cd query_search
+    ```
 
-git clone https://github.com/weisifan/query_search.git
-cd query_search
+2. **Install Go:**
 
+    ```bash
+    sudo apt update
+    sudo apt install golang-go
+    ```
 
-2. Install Go:
+    Ensure you have **Go 1.18+**:
 
-sudo apt update
-sudo apt install golang-go
+    ```bash
+    go version
+    ```
 
-Check the Go version (needs Go 1.18+):
+3. **Install or extract USearch C library:**
 
-go version
+    You need the shared library `libusearch_c.so`.
 
-3. Install or extract USearch C library:
+    **Option A: Download the prebuilt USearch .deb package:**
 
-You need the shared library libusearch_c.so.
+    ```bash
+    wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
 
-Option A: Download prebuilt USearch .deb package and extract manually:
+    ar x usearch_linux_amd64_2.17.7.deb
+    
+    tar --use-compress-program=unzstd -xf data.tar.zst
+    ```
 
-wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
+    You will find:
+    - `usr/local/lib/libusearch_c.so`
+    - `usr/local/include/usearch/*.hpp`
 
-ar x usearch_linux_amd64_2.17.7.deb
+    **Set your environment:**
 
-tar --use-compress-program=unzstd -xf data.tar.zst
+    ```bash
+    export LD_LIBRARY_PATH=$(pwd)/usr/local/lib:$LD_LIBRARY_PATH
+    ```
 
-You will find:
-usr/local/lib/libusearch_c.so
-usr/local/include/usearch/*.hpp
+    **Option B: Build USearch from source:**  
+    Clone the [USearch GitHub repository](https://github.com/unum-cloud/usearch) and build using CMake.
 
-Set your environment:
+4. **Build `query_search`:**
 
-export LD_LIBRARY_PATH=$(pwd)/usr/local/lib:$LD_LIBRARY_PATH
+    ```bash
+    go build -o query_search
+    ```
 
-Option B: Build USearch from source:
+    After building, you will have a local executable `query_search`.
 
-Clone the USearch GitHub repository and build it using CMake.
+## Using Prebuilt Artifact
 
-4. Build the query_search binary:
+If you prefer not to build manually:
 
-go build -o query_search
-
-Now you have a local executable "query_search".
-
-------------------------------------------------------------
-
-USING PREBUILT ARTIFACT
-
-If you don't want to build manually:
-
-1. Go to this repository -> Actions tab.
+1. Go to this repository → **Actions** tab.
 2. Select the latest successful workflow.
-3. Download the artifact (ZIP file).
-4. Unzip it, you will get:
-   - query_search (the executable)
+3. Download the artifact (.zip file).
+4. Unzip the file — you will get:
+    - `query_search`
+    - `libusearch_c.so`
+    - `run.sh`
 
-You still need libusearch_c.so separately, either from building manually or from the extracted .deb package.
+**Example to run:**
 
-Make sure to set:
+```bash
+./run.sh <api-key> <path-to-text-file>
+```
 
-export LD_LIBRARY_PATH=/path/to/your/usr/local/lib:$LD_LIBRARY_PATH
+## Usage
 
-Example:
+**Basic command structure:**
 
-export LD_LIBRARY_PATH=$(pwd)/usr/local/lib:$LD_LIBRARY_PATH
-
-------------------------------------------------------------
-
-USAGE
-
-Basic command structure:
-
+```bash
 ./query_search <api-key> <path-to-text-file>
+```
 
-- <api-key>: Your API key for the embedding service (e.g., OpenAI, or any compatible service).
-- <path-to-text-file>: A plain text file where each line is a separate text to be indexed.
+- `<api-key>`: Your API key for the embedding service (e.g., OpenAI API key).
+- `<path-to-text-file>`: A plain text file where each line is a separate text entry to be indexed.
 
-Example:
+**Example:**
 
+```bash
 ./query_search <your-openai-api-key> demo.txt
+```
 
 This will:
-- Embed each line from demo.txt
-- Add it to the USearch index
-- Allow you to perform nearest neighbor search queries.
+- Embed each line from `demo.txt`
+- Add the embeddings to the USearch index
+- Enable similarity search queries through a REPL interface
 
-------------------------------------------------------------
+## Environment Setup Reminder
 
-ENVIRONMENT SETUP SUMMARY
+Before running `query_search`, ensure the shared library path is set correctly:
 
-Before running, always make sure:
-
+```bash
 export LD_LIBRARY_PATH=/path/to/libusearch_c_folder:$LD_LIBRARY_PATH
+```
 
-Otherwise you might see errors like:
+Otherwise, you may encounter errors like:
 
+```
 error while loading shared libraries: libusearch_c.so: cannot open shared object file
+```
 
-------------------------------------------------------------
+## License
 
-LICENSE
+Currently, there is no specific license attached to this project.
 
-None
+## Notes
 
-------------------------------------------------------------
+- `libusearch_c.so` must be accessible at runtime (either installed globally or via `LD_LIBRARY_PATH`).
+- A helper script `run.sh` can automate environment setup and running.
+- Future improvements may include static linking to eliminate `.so` dependencies for full portability.
 
-NOTES
+## Quick Commands Recap
 
-- libusearch_c.so must be accessible at runtime (either installed globally, or via LD_LIBRARY_PATH).
-- If needed, you can create a helper script run.sh to automate environment setup.
-- Future improvements may include static linking for full portability without .so dependencies.
-
-------------------------------------------------------------
-
-QUICK COMMANDS RECAP
-
-Clone project:
-git clone https://github.com/weisifan/query_search.git
-
-Build binary:
-go build -o query_search ./cmd
-
-Set library path:
-export LD_LIBRARY_PATH=$(pwd)/usr/local/lib:$LD_LIBRARY_PATH
-
-Run:
-./query_search <api-key> <text-file>
+| Task | Command |
+|:-----|:--------|
+| Clone project | `git clone https://github.com/weisifan/query_search.git` |
+| Build binary | `go build -o query_search ./cmd` |
+| Set library path | `export LD_LIBRARY_PATH=$(pwd)/usr/local/lib:$LD_LIBRARY_PATH` |
+| Run | `./query_search <api-key> <text-file>` |
