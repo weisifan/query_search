@@ -19,12 +19,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake gcc g++ make
 
-    - name: Clone usearch
+    - name: Clone usearch with submodules
       run: |
-        git clone https://github.com/unum-cloud/usearch.git
+        git clone --recurse-submodules https://github.com/unum-cloud/usearch.git
         cd usearch
         cmake -B build -DUSEARCH_BUILD_SHARED=OFF -DUSEARCH_BUILD_STATIC=ON .
         cmake --build build
+
 
     - name: Build query_search binary
       env:
