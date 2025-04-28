@@ -1,28 +1,55 @@
-- name: Download and Extract usearch deb
-  run: |
-    wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
-    mkdir extracted
-    dpkg-deb -x usearch_linux_amd64_2.17.7.deb extracted
+name: Build Static Query Search (using extracted usearch .so)
 
-- name: Prepare headers
-  run: |
-    mkdir -p usearch/golang
-    cp extracted/usr/local/include/usearch.h usearch/golang/
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-- name: Add replace directive for local usearch golang binding
-  run: |
-    go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/golang
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-- name: Tidy go.mod
-  env:
-    CGO_CFLAGS: "-I${{ github.workspace }}/extracted/usr/local/include"
-    CGO_LDFLAGS: "-L${{ github.workspace }}/extracted/usr/local/lib -lusearch_c"
-  run: |
-    go mod tidy
+    steps:
+    - name: Checkout project code
+      uses: actions/checkout@v4
 
-- name: Build query_search binary
-  env:
-    CGO_CFLAGS: "-I${{ github.workspace }}/extracted/usr/local/include"
-    CGO_LDFLAGS: "-L${{ github.workspace }}/extracted/usr/local/lib -lusearch_c"
-  run: |
-    go build -o query_search ./cmd/main.go
+    - name: Install build tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget dpkg-dev gcc g++ make cmake
+
+    - name: Download and Extract usearch deb package
+      run: |
+        wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
+        mkdir extracted
+        dpkg-deb -x usearch_linux_amd64_2.17.7.deb extracted
+
+    - name: Prepare headers
+      run: |
+        mkdir -p usearch/golang
+        cp extracted/usr/local/include/usearch.h usearch/golang/
+
+    - name: Add replace directive for local usearch golang binding
+      run: |
+        go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/golang
+
+    - name: Tidy go.mod
+      env:
+        CGO_CFLAGS: "-I${{ github.workspace }}/extracted/usr/local/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/extracted/usr/local/lib -lusearch_c"
+      run: |
+        go mod tidy
+
+    - name: Build query_search binary
+      env:
+        CGO_CFLAGS: "-I${{ github.workspace }}/extracted/usr/local/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/extracted/usr/local/lib -lusearch_c"
+      run: |
+        go build -o query_search ./cmd/main.go
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: query_search_binary
+        path: query_search
