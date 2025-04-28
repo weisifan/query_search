@@ -45,7 +45,7 @@ You can either **build `query_search` from source** manually or **download a pre
     wget https://github.com/unum-cloud/usearch/releases/download/v2.17.7/usearch_linux_amd64_2.17.7.deb
 
     ar x usearch_linux_amd64_2.17.7.deb
-    
+
     tar --use-compress-program=unzstd -xf data.tar.zst
     ```
 
@@ -65,7 +65,7 @@ You can either **build `query_search` from source** manually or **download a pre
 4. **Build `query_search`:**
 
     ```bash
-    go build -o query_search
+    go build -o query_search ./cmd
     ```
 
     After building, you will have a local executable `query_search`.
