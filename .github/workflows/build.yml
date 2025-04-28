@@ -25,7 +25,7 @@ jobs:
 
     - name: Add replace directive for local usearch golang binding
       run: |
-        echo 'replace github.com/unum-cloud/usearch/golang => ./usearch/bindings/golang' >> go.mod
+        go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/bindings/golang
 
     - name: Build static libusearch_c.a
       run: |
