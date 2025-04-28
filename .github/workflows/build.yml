@@ -1,4 +1,4 @@
-name: Build Static Query Search (with local usearch/golang)
+name: Build Static Query Search (fix header visibility)
 
 on:
   push:
@@ -32,6 +32,10 @@ jobs:
     - name: Add replace directive for local usearch golang binding
       run: |
         go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/golang
+
+    - name: Prepare headers
+      run: |
+        cp usearch/include/usearch.h usearch/golang/
 
     - name: Tidy go.mod
       env:
