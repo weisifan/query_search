@@ -33,12 +33,18 @@ jobs:
       run: |
         go mod edit -replace=github.com/unum-cloud/usearch/golang=./usearch/golang
 
-    - name: Build query_search binary
+    - name: Tidy go.mod
       env:
         CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
         CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
       run: |
         go mod tidy
+
+    - name: Build query_search binary
+      env:
+        CGO_CFLAGS: "-I${{ github.workspace }}/usearch/include"
+        CGO_LDFLAGS: "-L${{ github.workspace }}/usearch/build -l:libusearch_c.a -static"
+      run: |
         go build -o query_search ./cmd/main.go
 
     - name: Upload artifact
